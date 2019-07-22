@@ -23,11 +23,11 @@ func DoRequest(method string, url string, body io.Reader) (*http.Response, error
 	return resp, nil
 }
 
-func ParseBodyToUnknownArray(resp *http.Response) (*[]map[string]interface{}, error) {
+func ParseBodyToBytes(resp *http.Response) (*[]byte, error) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to read response %s", err)
 	}
-	return ParseToUnknownArray(body)
+	return &body, nil
 }
