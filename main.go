@@ -14,11 +14,11 @@ func main() {
 		log.Println("-----------------------")
 		log.Println("id: ", post.Id)
 		log.Println("title: ", post.Title)
-		// c, err := GetPostComments(server, id)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// log.Println(c)
+		c, err := GetPostComments(server, post.Id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(c)
 	}
 }
 

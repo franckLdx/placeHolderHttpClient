@@ -28,16 +28,32 @@ func GetPosts(server *Server) (*[]Post, error) {
 	}
 	var posts []Post
 	if err := json.Unmarshal(*body, &posts); err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal response")
+		return nil, fmt.Errorf("Failed to unmarshal posts response")
 	}
 	return &posts, nil
 }
 
-// func GetPostComments(server *Server, postId string) (*[]map[string]interface{}, error) {
-// 	url := fmt.Sprintf("%s/posts/%s/comments", server.Url, postId)
-// 	resp, err := DoRequest("GET", url, nil)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("Failed to get comments of posts %s from %s: %s", postId, url, err)
-// 	}
-// 	return ParseBodyToUnknownArray(resp)
-// }
+type Comment struct {
+	OostId int
+	Id     int
+	Name   string
+	Email  string
+	Body   string
+}
+
+func GetPostComments(server *Server, postId int) (*[]Comment, error) {
+	url := fmt.Sprintf("%s/posts/%d/comments", server.Url, postId)
+	resp, err := DoRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get comments of posts %s from %s: %s", postId, url, err)
+	}
+	body, err := ParseBodyToBytes(resp)
+	if err != nil {
+		return nil, err
+	}
+	var comments []Comment
+	if err := json.Unmarshal(*body, &comments); err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal comment response")
+	}
+	return &comments, nil
+}
