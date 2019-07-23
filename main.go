@@ -2,14 +2,24 @@ package main
 
 import (
 	"log"
+	"placeHolderHttpClient/tools"
 )
 
 func main() {
 	server := getServerConfig()
-	data, err := GetPosts(server)
+	posts, err := GetPosts(server)
 	if err != nil {
 		log.Fatal(err)
 	}
+	printPosts(posts)
+}
+
+func getServerConfig() *Server {
+	config := tools.LoadConfig()
+	return &config.Server
+}
+
+func printPosts() {
 	for _, post := range *data {
 		log.Println("-----------------------")
 		log.Println("id: ", post.Id)
@@ -20,9 +30,4 @@ func main() {
 		}
 		log.Println(c)
 	}
-}
-
-func getServerConfig() *Server {
-	config := LoadConfig()
-	return &config.Server
 }
