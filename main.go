@@ -12,6 +12,7 @@ func main() {
 		log.Fatal(err)
 	}
 	printPosts(placeHolder, posts)
+	log.Println("Bye Bye")
 }
 
 func getPlaceHolder() *PlaceHolder {
@@ -20,14 +21,22 @@ func getPlaceHolder() *PlaceHolder {
 }
 
 func printPosts(placeHolder *PlaceHolder, posts *[]Post) {
-	for _, post := range *posts {
-		log.Println("-----------------------")
-		log.Println("id: ", post.Id)
-		log.Println("title: ", post.Title)
-		c, err := placeHolder.GetPostComments(post.Id)
-		if err != nil {
-			log.Fatal(err)
+	commentsChan := make(chan *CommentsResult)
+	defer close(commentsChan)
+	go getComments(placeHolder, posts, commentsChan)
+
+	for count := 0; count < len(*posts); count++ {
+		commentResult := <-commentsChan
+		if commentResult.err != nil {
+			log.Fatal(commentResult.err)
 		}
-		log.Println(c)
+		log.Println(commentResult.comments)
+		log.Println(count)
+	}
+}
+
+func getComments(placeHolder *PlaceHolder, posts *[]Post, result chan<- (*CommentsResult)) {
+	for _, post := range *posts {
+		go placeHolder.GoGetPostComments(post.Id, result)
 	}
 }

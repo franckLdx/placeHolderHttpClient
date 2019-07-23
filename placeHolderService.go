@@ -58,3 +58,13 @@ func (placeHolder *PlaceHolder) GetPostComments(postId int) (*[]Comment, error) 
 	}
 	return &comments, nil
 }
+
+type CommentsResult struct {
+	comments []Comment
+	err      error
+}
+
+func (placeHolder *PlaceHolder) GoGetPostComments(postId int, result chan<- (*CommentsResult)) {
+	comments, err := placeHolder.GetPostComments(postId)
+	result <- &CommentsResult{*comments, err}
+}
