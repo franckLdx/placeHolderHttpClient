@@ -6,25 +6,25 @@ import (
 )
 
 func main() {
-	server := getServerConfig()
-	posts, err := GetPosts(server)
+	placeHolder := getPlaceHolder()
+	posts, err := placeHolder.GetPosts()
 	if err != nil {
 		log.Fatal(err)
 	}
-	printPosts(posts)
+	printPosts(placeHolder, posts)
 }
 
-func getServerConfig() *Server {
+func getPlaceHolder() *PlaceHolder {
 	config := tools.LoadConfig()
-	return &config.Server
+	return &PlaceHolder{url: config.Server.Url}
 }
 
-func printPosts() {
-	for _, post := range *data {
+func printPosts(placeHolder *PlaceHolder, posts *[]Post) {
+	for _, post := range *posts {
 		log.Println("-----------------------")
 		log.Println("id: ", post.Id)
 		log.Println("title: ", post.Title)
-		c, err := GetPostComments(server, post.Id)
+		c, err := placeHolder.GetPostComments(post.Id)
 		if err != nil {
 			log.Fatal(err)
 		}
