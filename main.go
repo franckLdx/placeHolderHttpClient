@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"placeHolderHttpClient/placeHolder"
+	placeholder "placeHolderHttpClient/placeHolder"
 	"placeHolderHttpClient/tools"
 )
 
@@ -15,28 +17,28 @@ func main() {
 	log.Println("Bye Bye")
 }
 
-func getPlaceHolder() *PlaceHolder {
+func getPlaceHolder() *placeHolder.Server {
 	config := tools.LoadConfig()
-	return &PlaceHolder{url: config.Server.Url}
+	return &placeHolder.Server{Url: config.Server.Url}
 }
 
-func printPosts(placeHolder *PlaceHolder, posts *[]Post) {
-	commentsChan := make(chan *CommentsResult)
+func printPosts(server *placeHolder.Server, posts *[]placeHolder.Post) {
+	commentsChan := make(chan *placeHolder.CommentsResult)
 	defer close(commentsChan)
-	go getComments(placeHolder, posts, commentsChan)
+	go getComments(server, posts, commentsChan)
 
 	for count := 0; count < len(*posts); count++ {
 		commentResult := <-commentsChan
-		if commentResult.err != nil {
-			log.Fatal(commentResult.err)
+		if commentResult.Err != nil {
+			log.Fatal(commentResult.Err)
 		}
-		log.Println(commentResult.comments)
+		log.Println(commentResult.Comments)
 		log.Println(count)
 	}
 }
 
-func getComments(placeHolder *PlaceHolder, posts *[]Post, result chan<- (*CommentsResult)) {
+func getComments(server *placeholder.Server, posts *[]placeholder.Post, result chan<- (*placeHolder.CommentsResult)) {
 	for _, post := range *posts {
-		go placeHolder.GoGetPostComments(post.Id, result)
+		go server.GoGetComments(post.Id, result)
 	}
 }
