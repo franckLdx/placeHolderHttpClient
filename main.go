@@ -16,7 +16,7 @@ func main() {
 	defer close(commentsChan)
 	go getComments(server, posts, commentsChan)
 
-	print(posts, commentsChan)
+	printPostsWithComments(posts, commentsChan)
 
 	log.Println("Bye Bye")
 }
@@ -26,18 +26,7 @@ func getPlaceHolder() *placeHolder.Server {
 	return &placeHolder.Server{Url: config.Server.Url}
 }
 
-func print(posts *[]placeHolder.Post, commentsChan <-chan *placeHolder.CommentsResult) {
-	for count := 0; count < len(*posts); count++ {
-		commentResult := <-commentsChan
-		if commentResult.Err != nil {
-			log.Fatal(commentResult.Err)
-		}
-		log.Println(commentResult.Comments)
-		log.Println(count)
-	}
-}
-
-func getPosts(server *placeHolder.Server) *[]placeHolder.Post {
+func getPosts(server *placeHolder.Server) *placeHolder.Posts {
 	posts, err := server.GetPosts()
 	if err != nil {
 		log.Fatal(err)
@@ -45,8 +34,30 @@ func getPosts(server *placeHolder.Server) *[]placeHolder.Post {
 	return posts
 }
 
-func getComments(server *placeholder.Server, posts *[]placeholder.Post, commentsResult chan<- (*placeHolder.CommentsResult)) {
+func getComments(server *placeholder.Server, posts *placeholder.Posts, commentsResult chan<- (*placeHolder.CommentsResult)) {
 	for _, post := range *posts {
 		go server.GoGetComments(post.Id, commentsResult)
+	}
+}
+
+func printPostsWithComments(posts *placeHolder.Posts, commentsChan <-chan *placeHolder.CommentsResult) {
+	for count := 0; count < len(*posts); count++ {
+		commentResult := <-commentsChan
+		if commentResult.Err != nil {
+			log.Fatal(commentResult.Err)
+		}
+		post := placeHolder.FindPostById(*posts, commentResult.PostId)
+		if post == nil {
+			log.Fatal("Comments with no posts", commentResult.PostId)
+		}
+		printPostWithComments(post, &commentResult.Comments)
+	}
+}
+
+func printPostWithComments(post *placeHolder.Post, comments *placeHolder.Comments) {
+	log.Println("----------------------------------------------------")
+	log.Println(post.Body)
+	for _, comment := range *comments {
+		log.Println(comment.Body)
 	}
 }
