@@ -9,6 +9,7 @@ type Comment struct {
 }
 
 type Comments []Comment
+type CommentsMap map[int]Comments
 
 type CommentsResult struct {
 	PostId   int

@@ -36,7 +36,7 @@ func (server *Server) GetComments(postId int) (*Comments, error) {
 	return &comments, nil
 }
 
-func (server *Server) GoGetComments(postId int, result chan<- (*CommentsResult)) {
+func (server *Server) GoGetComments(postId int, result chan<- *CommentsResult) {
 	comments, err := server.GetComments(postId)
 	result <- &CommentsResult{postId, *comments, err}
 }
